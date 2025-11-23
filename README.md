@@ -1,45 +1,108 @@
-# LankaMedi AI
+# 🏥 LankaMedi AI
 
-Smart Medical Report Analysis - A Sri Lankan AI-powered web application that analyzes medical reports and provides health status assessments with personalized recommendations for Sri Lankan healthcare.
+**Smart Medical Report Analysis for Sri Lanka** 🇱🇰
 
-## Features
+A Sri Lankan AI-powered web application that analyzes medical reports and provides comprehensive health assessments with professional treatment plans tailored for Sri Lankan healthcare.
 
-- **🔬 AI Analysis**: Advanced text analysis for critical issues, warnings, and positive indicators
+## ✨ Features
+
+- **🔬 AI Analysis**: Advanced text analysis detecting critical issues, warnings, and positive indicators
 - **📊 Health Status**: Smart categorization as Good, Needs Attention, or Critical
-- **💡 Smart Recommendations**: Personalized health insights based on report content
+- **👩‍⚕️ Treatment Plans**: Professional medical conditions, medications, lifestyle, and clinical notes
 - **📱 Multi-Format Support**: Text input, PDF upload, and image OCR processing
-- **🎨 Modern Interface**: Clean, responsive design with intuitive navigation
+- **🎨 Mobile-First Design**: Responsive interface optimized for all devices
+- **☁️ Cloud Deployment**: Works seamlessly on web platforms
 
-## Quick Start
+## 🚀 Live Demo
 
-1. **Install Dependencies**:
+**Website**: [LankaMedi AI](https://your-vercel-url.vercel.app)
+
+## 🛠️ Technology Stack
+
+- **Backend**: Python Flask with medical analysis algorithms
+- **Frontend**: Responsive HTML/CSS/JavaScript with animations
+- **OCR**: Cloud-based OCR.space API for image processing
+- **PDF Processing**: PyPDF2 for document text extraction
+- **Deployment**: Vercel with GitHub integration
+
+## 📋 Quick Start
+
+### Local Development
+
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/mahimapaseda/LankaMedi-AI.git
+   cd LankaMedi-AI
+   ```
+
+2. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Install Tesseract OCR** (optional, for image processing):
-   - **Windows**: Download from https://github.com/UB-Mannheim/tesseract/wiki
-   - **Mac**: `brew install tesseract`
-   - **Linux**: `sudo apt install tesseract-ocr`
-   - **Note**: PDF and text input work without Tesseract
-
-3. **Run the Application**:
+3. **Run Application**:
    ```bash
    python app.py
    ```
 
-4. **Access the Website**:
+4. **Access Website**:
    Open http://localhost:5000 in your browser
 
-## How It Works
+### Cloud Deployment
 
-1. Paste your medical report text into the textarea
-2. Click "Analyze Report" 
-3. Get instant AI analysis with:
-   - Overall health status (Good/Warning/Critical)
-   - Count of critical issues, warnings, and positive indicators
-   - Personalized recommendations
+**Deploy on Vercel**:
+1. Fork this repository
+2. Connect to [Vercel](https://vercel.com)
+3. Auto-deploys from GitHub
 
-## Medical Disclaimer
+## 📖 How It Works
 
-This AI analysis is for informational purposes only and should not replace professional medical advice. Always consult with qualified healthcare providers for medical decisions.
+1. **Upload**: PDF files, images, or paste text
+2. **Analysis**: AI processes medical content
+3. **Results**: Get comprehensive treatment plan with:
+   - 🩺 Medical conditions identification
+   - 💊 Medication protocols
+   - 🍎 Lifestyle recommendations
+   - 📝 Clinical monitoring notes
+
+## 🏥 Medical Features
+
+- **Professional Language**: Clinical terminology and protocols
+- **Evidence-Based**: Following established medical guidelines
+- **Comprehensive**: Covers multiple medical conditions
+- **Sri Lankan Context**: Tailored for local healthcare system
+
+## 📱 Supported Formats
+
+- **📄 PDF**: Medical reports and lab results
+- **🖼️ Images**: PNG, JPG, JPEG, BMP, TIFF (via cloud OCR)
+- **📝 Text**: Direct text input
+
+## 👨‍💻 Developer
+
+**💡 Idea & Developer**: Mahima Paseda Kusumsiri  
+**🇱🇰 Made in**: Sri Lanka  
+**📅 Year**: 2025
+
+### 📞 Contact & Social Media
+
+<p>
+  <a href="https://mahimapaseda.vercel.app/"><img src="https://img.shields.io/badge/🌐_Portfolio-Visit_Site-FF6B6B?style=for-the-badge&labelColor=1a1a2e"/></a>
+  <a href="https://www.linkedin.com/in/mahimapaseda"><img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
+  <a href="https://www.youtube.com/@mahimapaseda"><img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/></a>
+  <a href="https://www.instagram.com/mahi_pase_2002"><img src="https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/></a>
+</p>
+
+📧 **Email**: [mahimapasedakusumsiri@gmail.com](mailto:mahimapasedakusumsiri@gmail.com)
+
+## ⚠️ Medical Disclaimer
+
+LankaMedi AI provides analysis for **informational purposes only** and should not replace professional medical advice. Always consult with qualified healthcare providers for medical decisions.
+
+## 📄 License
+
+MIT License - Feel free to use and modify for educational purposes.
+
+---
+
+**🇱🇰 Proudly Made in Sri Lanka for Sri Lankan Healthcare** 🏥
