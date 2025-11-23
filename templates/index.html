@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#0ea5e9">
+    <title>LankaMedi AI - Smart Medical Report Analysis</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #10b981;
+            --success: #059669;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 50%, #ffffff 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--gray-700);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 15s infinite linear;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary);
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            background: var(--primary);
+            top: 80%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+        
+        .shape:nth-child(4) {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            top: 30%;
+            left: 70%;
+            animation-delay: -7s;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 1s ease-out;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .header p {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+        
+        .main-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 2rem;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        
+        .input-tabs {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+        
+        .input-form {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            display: none;
+        }
+        
+        .input-form.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 20px;
+            border: 2px dashed var(--gray-300);
+            border-radius: 12px;
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        input[type="file"]:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            transition: all 0.3s ease;
+            animation: fadeInScale 0.6s ease-out;
+        }
+        
+        .metric:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            animation: countUp 1s ease-out;
+        }
+        
+        .metric-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .treatment-plan {
+            margin-top: 2rem;
+        }
+        
+        .treatment-plan h3 {
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .plan-section {
+            margin-bottom: 2rem;
+        }
+        
+        .plan-section h4 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        
+        .plan-item {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.6s ease-out;
+            font-size: 0.95rem;
+        }
+        
+        .plan-item:hover {
+            transform: translateX(6px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .medication-item {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.02) 100%);
+        }
+        
+        .lifestyle-item {
+            border-left-color: var(--secondary);
+        }
+        
+        .notes-item {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+        }
+        
+        .condition-item {
+            border-left-color: var(--primary);
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(14, 165, 233, 0.03) 100%);
+            font-weight: 500;
+        }
+        
+        .disclaimer {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--gray-700);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+            to { text-shadow: 0 4px 30px rgba(255,255,255,0.4); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes countUp {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(20px) rotate(240deg); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) translateX(10px) rotate(90deg); }
+            50% { transform: translateY(0px) translateX(20px) rotate(180deg); }
+            75% { transform: translateY(20px) translateX(10px) rotate(270deg); }
+            100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) {
+            .container { padding: 1.5rem; }
+            .main-card { padding: 2rem; }
+            .metrics { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        }
+        
+        @media (max-width: 768px) {
+            body { background: linear-gradient(180deg, #0ea5e9 0%, #10b981 100%); }
+            .container { padding: 0; max-width: 100%; }
+            .header { padding: 2rem 1rem 1rem; margin-bottom: 0; }
+            .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+            .header p { font-size: 1rem; }
+            .main-card { 
+                margin: 0;
+                border-radius: 24px 24px 0 0;
+                padding: 1.5rem;
+                min-height: calc(100vh - 120px);
+                position: relative;
+            }
+            .results { 
+                margin: 1rem 0 0;
+                border-radius: 16px;
+                padding: 1.5rem;
+            }
+            .input-tabs { 
+                background: rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 6px;
+                margin-bottom: 1.5rem;
+            }
+            .tab-btn { 
+                padding: 14px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+                font-weight: 600;
+            }
+            .tab-btn.active {
+                background: white;
+                color: var(--primary);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .metrics { grid-template-columns: 1fr; gap: 1rem; }
+            .metric { 
+                padding: 1.25rem;
+                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+                border: 1px solid rgba(14, 165, 233, 0.1);
+            }
+            .btn { 
+                width: 100%;
+                padding: 16px;
+                font-size: 16px;
+                border-radius: 16px;
+                margin-top: 1rem;
+            }
+            textarea { 
+                min-height: 120px;
+                border-radius: 16px;
+                font-size: 16px;
+            }
+            input[type="file"] {
+                padding: 16px;
+                border-radius: 16px;
+                font-size: 14px;
+            }
+            .status-badge {
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 25px;
+            }
+            .recommendation {
+                padding: 1rem;
+                border-radius: 12px;
+                margin-bottom: 0.75rem;
+            }
+            .disclaimer {
+                margin: 1rem;
+                padding: 1rem;
+                border-radius: 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header { padding: 1.5rem 1rem 0.5rem; }
+            .header h1 { font-size: 1.75rem; }
+            .header p { font-size: 0.9rem; }
+            .main-card { 
+                padding: 1rem;
+                border-radius: 20px 20px 0 0;
+                min-height: calc(100vh - 100px);
+            }
+            .results { padding: 1rem; }
+            .input-tabs { padding: 4px; }
+            .tab-btn { padding: 12px 8px; font-size: 0.85rem; }
+            .metric { padding: 1rem; }
+            .metric-value { font-size: 1.75rem; }
+            .btn { padding: 14px; font-size: 15px; }
+            textarea { min-height: 100px; }
+            .floating-shapes { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🏥 LankaMedi AI</h1>
+            <p>Smart Medical Report Analysis with AI-Powered Health Insights for Sri Lanka</p>
+        </div>
+
+        <div class="main-card">
+            <div class="input-tabs">
+                <button type="button" class="tab-btn active" onclick="switchTab('file')">
+                    📄 File Upload
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('text')">
+                    📝 Text Input
+                </button>
+            </div>
+            
+            <form id="textForm" class="input-form">
+                <div class="form-group">
+                    <label for="reportText">Medical Report Text</label>
+                    <textarea id="reportText" placeholder="Paste your medical report text here for AI analysis..."></textarea>
+                </div>
+                <button type="submit" class="btn" id="analyzeTextBtn">
+                    <span class="btn-text">Analyze Report</span>
+                </button>
+            </form>
+            
+            <form id="fileForm" class="input-form active" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="reportFile">Upload Medical Report</label>
+                    <input type="file" id="reportFile" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff" required>
+                    <small style="color: var(--gray-600); margin-top: 8px; display: block; font-size: 0.85rem;">
+                        ✨ Supported formats: PDF, PNG, JPG, JPEG, BMP, TIFF
+                    </small>
+                </div>
+                <button type="submit" class="btn" id="analyzeFileBtn">
+                    <span class="btn-text">Analyze File</span>
+                </button>
+            </form>
+        </div>
+
+        <div id="results" class="results">
+            <div id="statusBadge" class="status-badge"></div>
+            
+            <div class="metrics">
+                <div class="metric">
+                    <div id="criticalCount" class="metric-value">0</div>
+                    <div class="metric-label">Critical Issues</div>
+                </div>
+                <div class="metric">
+                    <div id="warningCount" class="metric-value">0</div>
+                    <div class="metric-label">Warning Signs</div>
+                </div>
+                <div class="metric">
+                    <div id="positiveCount" class="metric-value">0</div>
+                    <div class="metric-label">Positive Indicators</div>
+                </div>
+            </div>
+
+            <div class="treatment-plan">
+                <h3>📋 Treatment Plan</h3>
+                
+                <div class="plan-section">
+                    <h4>🩺 Medical Conditions</h4>
+                    <div id="conditionsList"></div>
+                </div>
+                
+                <div class="plan-section">
+                    <h4>💊 Medications</h4>
+                    <div id="medicationsList"></div>
+                </div>
+                
+                <div class="plan-section">
+                    <h4>🍽️ Lifestyle Recommendations</h4>
+                    <div id="lifestyleList"></div>
+                </div>
+                
+                <div class="plan-section">
+                    <h4>📝 Clinical Notes</h4>
+                    <div id="notesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Medical Disclaimer:</strong> LankaMedi AI provides analysis for informational purposes only and should not replace professional medical advice. Always consult with qualified healthcare providers for medical decisions.
+        </div>
+        
+        <footer style="text-align: center; padding: 2rem 1rem; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 2rem;">
+            <p>💡 Idea & Developer: <strong>Mahima Paseda Kusumsiri</strong></p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">© 2025 LankaMedi AI - Made in Sri Lanka 🇱🇰</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(type) {
+            // Remove active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.input-form').forEach(form => form.classList.remove('active'));
+            
+            // Add active class to selected tab and form
+            if (type === 'file') {
+                document.querySelector('.tab-btn').classList.add('active');
+                document.getElementById('fileForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('textForm').classList.add('active');
+            }
+        }
+        
+        // Text form handler
+        document.getElementById('textForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const reportText = document.getElementById('reportText').value.trim();
+            const analyzeBtn = document.getElementById('analyzeTextBtn');
+            
+            if (!reportText) {
+                alert('Please enter medical report text');
+                return;
+            }
+            
+            await analyzeReport({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_text: reportText })
+            }, analyzeBtn, 'Analyze Report');
+        });
+        
+        // File form handler (PDF or Image)
+        document.getElementById('fileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const reportFile = document.getElementById('reportFile').files[0];
+            const analyzeBtn = document.getElementById('analyzeFileBtn');
+            
+            if (!reportFile) {
+                alert('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('report_file', reportFile);
+            
+            await analyzeReport({
+                method: 'POST',
+                body: formData
+            }, analyzeBtn, 'Analyze File');
+        });
+        
+        async function analyzeReport(fetchOptions, button, originalText) {
+            const results = document.getElementById('results');
+            const btnText = button.querySelector('.btn-text');
+            
+            button.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span>Analyzing...';
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/analyze', fetchOptions);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            } finally {
+                button.disabled = false;
+                btnText.textContent = originalText;
+            }
+        }
+        
+        function displayResults(data) {
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = data.status;
+            statusBadge.style.backgroundColor = data.color;
+            statusBadge.style.color = 'white';
+            
+            // Animate counter values
+            animateCounter('criticalCount', data.critical_issues);
+            animateCounter('warningCount', data.warning_issues);
+            animateCounter('positiveCount', data.positive_indicators);
+            
+            // Display treatment plan
+            displayTreatmentPlan(data.treatment_plan);
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            let currentValue = 0;
+            const increment = targetValue / 30;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    element.textContent = targetValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(currentValue);
+                }
+            }, 50);
+        }
+        
+        function displayTreatmentPlan(plan) {
+            // Display medical conditions
+            const conditionsList = document.getElementById('conditionsList');
+            conditionsList.innerHTML = '';
+            plan.conditions.forEach((condition, index) => {
+                const div = document.createElement('div');
+                div.className = 'plan-item condition-item';
+                div.textContent = condition;
+                div.style.animationDelay = `${index * 0.1}s`;
+                conditionsList.appendChild(div);
+            });
+            
+            // Display medications
+            const medicationsList = document.getElementById('medicationsList');
+            medicationsList.innerHTML = '';
+            plan.medications.forEach((med, index) => {
+                const div = document.createElement('div');
+                div.className = 'plan-item medication-item';
+                div.textContent = med;
+                div.style.animationDelay = `${(plan.conditions.length + index) * 0.1}s`;
+                medicationsList.appendChild(div);
+            });
+            
+            // Display lifestyle recommendations
+            const lifestyleList = document.getElementById('lifestyleList');
+            lifestyleList.innerHTML = '';
+            plan.lifestyle.forEach((lifestyle, index) => {
+                const div = document.createElement('div');
+                div.className = 'plan-item lifestyle-item';
+                div.textContent = lifestyle;
+                div.style.animationDelay = `${(plan.conditions.length + plan.medications.length + index) * 0.1}s`;
+                lifestyleList.appendChild(div);
+            });
+            
+            // Display clinical notes
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = '';
+            plan.notes.forEach((note, index) => {
+                const div = document.createElement('div');
+                div.className = 'plan-item notes-item';
+                div.textContent = note;
+                div.style.animationDelay = `${(plan.conditions.length + plan.medications.length + plan.lifestyle.length + index) * 0.1}s`;
+                notesList.appendChild(div);
+            });
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease;
+                background: ${type === 'error' ? 'var(--danger)' : 'var(--success)'};
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
