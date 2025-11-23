@@ -25,35 +25,7 @@ A Sri Lankan AI-powered web application that analyzes medical reports and provid
 - **PDF Processing**: PyPDF2 for document text extraction
 - **Deployment**: Vercel with GitHub integration
 
-## 📋 Quick Start
 
-### Local Development
-
-1. **Clone Repository**:
-   ```bash
-   git clone https://github.com/mahimapaseda/LankaMedi-AI.git
-   cd LankaMedi-AI
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run Application**:
-   ```bash
-   python app.py
-   ```
-
-4. **Access Website**:
-   Open http://localhost:5000 in your browser
-
-### Cloud Deployment
-
-**Deploy on Vercel**:
-1. Fork this repository
-2. Connect to [Vercel](https://vercel.com)
-3. Auto-deploys from GitHub
 
 ## 📖 How It Works
 
