@@ -5,11 +5,26 @@ import PyPDF2
 from io import BytesIO
 from PIL import Image
 import os
-try:
-    import pytesseract
-    TESSERACT_AVAILABLE = True
-except ImportError:
-    TESSERACT_AVAILABLE = False
+import base64
+import requests
+
+# Cloud OCR using OCR.space API
+def cloud_ocr(image_bytes):
+    try:
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        url = 'https://api.ocr.space/parse/image'
+        payload = {
+            'base64Image': f'data:image/png;base64,{image_b64}',
+            'apikey': 'helloworld',
+            'language': 'eng'
+        }
+        response = requests.post(url, data=payload, timeout=30)
+        result = response.json()
+        if result.get('IsErroredOnProcessing', True):
+            return None
+        return result['ParsedResults'][0]['ParsedText']
+    except:
+        return None
 
 app = Flask(__name__)
 
@@ -146,12 +161,11 @@ def analyze():
                     report_text += page.extract_text() + '\n'
             
             elif filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
-                # Image OCR processing
-                try:
-                    image = Image.open(BytesIO(file.read()))
-                    report_text = pytesseract.image_to_string(image)
-                except Exception:
-                    return jsonify({'error': 'Tesseract OCR not found in PATH. Please add C:\\Program Files\\Tesseract-OCR\\ to your system PATH and restart.'}), 400
+                # Cloud OCR processing
+                file_bytes = file.read()
+                report_text = cloud_ocr(file_bytes)
+                if not report_text:
+                    return jsonify({'error': 'OCR processing failed. Please ensure image contains clear text.'}), 400
             
             else:
                 return jsonify({'error': 'Unsupported file type. Please upload PDF or image files.'}), 400
