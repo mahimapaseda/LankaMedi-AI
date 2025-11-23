@@ -15,7 +15,7 @@ A Sri Lankan AI-powered web application that analyzes medical reports and provid
 
 ## 🚀 Live Demo
 
-**Website**: [LankaMedi AI](https://your-vercel-url.vercel.app)
+**Website**: [LankaMedi AI](https://lankamedi.vercel.app/)
 
 ## 🛠️ Technology Stack
 
