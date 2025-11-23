@@ -1,8 +1,15 @@
-# 🏥 LankaMedi AI
+# 🏥 LankaMedi AI - AI Medical Report Analysis Platform
 
 **Smart Medical Report Analysis for Sri Lanka** 🇱🇰
 
-A Sri Lankan AI-powered web application that analyzes medical reports and provides comprehensive health assessments with professional treatment plans tailored for Sri Lankan healthcare.
+[![AI Medical Analysis](https://img.shields.io/badge/AI-Medical%20Analysis-blue)](https://github.com/mahimapaseda/LankaMedi-AI)
+[![Sri Lanka Healthcare](https://img.shields.io/badge/Healthcare-Sri%20Lanka-green)](https://github.com/mahimapaseda/LankaMedi-AI)
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Flask](https://img.shields.io/badge/Python-Flask-red)](https://flask.palletsprojects.com/)
+
+LankaMedi AI is a cutting-edge **artificial intelligence medical report analyzer** designed specifically for **Sri Lankan healthcare system**. Our platform uses advanced **machine learning algorithms** to analyze medical reports, lab results, and diagnostic images, providing instant **health assessments**, **treatment recommendations**, and **clinical insights** for patients and healthcare professionals across Sri Lanka.
+
+**Keywords**: AI medical analysis, Sri Lanka healthcare, medical report analyzer, health assessment AI, clinical decision support, medical AI platform, healthcare technology Sri Lanka, automated medical diagnosis, treatment plan generator, medical OCR
 
 ## ✨ Features
 
@@ -67,14 +74,33 @@ A Sri Lankan AI-powered web application that analyzes medical reports and provid
 
 📧 **Email**: [mahimapasedakusumsiri@gmail.com](mailto:mahimapasedakusumsiri@gmail.com)
 
-## ⚠️ Medical Disclaimer
+## 🔍 SEO Keywords & Medical AI Tags
 
-LankaMedi AI provides analysis for **informational purposes only** and should not replace professional medical advice. Always consult with qualified healthcare providers for medical decisions.
+**Primary Keywords**: AI medical analysis, Sri Lanka healthcare, medical report analyzer, health assessment AI, clinical decision support, medical AI platform, healthcare technology Sri Lanka
 
-## 📄 License
+**Medical Specialties**: cardiology AI, diabetes management, hypertension analysis, kidney disease AI, liver function analysis, medical OCR, clinical NLP
 
-MIT License - Feel free to use and modify for educational purposes.
+**Technology Tags**: Python medical AI, Flask healthcare app, medical machine learning, healthcare NLP, clinical text analysis, medical image processing
+
+**Geographic Tags**: Sri Lankan healthcare, South Asian medical AI, tropical medicine AI, endemic disease analysis
+
+## ⚠️ Medical AI Disclaimer & Compliance
+
+**IMPORTANT MEDICAL NOTICE**: LankaMedi AI is an **artificial intelligence medical analysis tool** designed for **informational and educational purposes only**. This platform:
+
+- **Does NOT replace professional medical diagnosis** or clinical judgment
+- **Should NOT be used for emergency medical situations** - Contact emergency services immediately
+- **Requires healthcare professional validation** for all medical decisions
+- **Is NOT a substitute for licensed medical practitioners** or clinical consultation
+
+**Patient Safety First**: Always consult with qualified healthcare providers, licensed physicians, or medical specialists for accurate diagnosis, treatment plans, and medical advice.
+
+## 📄 Open Source Medical AI License
+
+**MIT License** - Free for educational, research, and non-commercial medical applications. Contribute to advancing AI in Sri Lankan healthcare.
 
 ---
 
-**🇱🇰 Proudly Made in Sri Lanka for Sri Lankan Healthcare** 🏥
+**🇱🇰 Proudly Developed in Sri Lanka for Global Healthcare Impact** 🏥
+
+*Advancing AI-powered healthcare solutions for better medical outcomes in Sri Lanka and beyond.*
