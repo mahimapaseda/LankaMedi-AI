@@ -1,0 +1,104 @@
+{
+  "id": "/?source=pwa",
+  "name": "LankaMedi AI - Smart Medical Report Explainer",
+  "short_name": "LankaMedi AI",
+  "description": "Sri Lanka's AI-powered trilingual medical report interpreter with client-side privacy de-identification and 1990 Suwa Seriya triage.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0f766e",
+  "background_color": "#f8fafc",
+  "categories": ["medical", "health", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/static/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Analyze Lab Report",
+      "short_name": "Analyze",
+      "description": "Upload and explain medical laboratory reports in English, Sinhala, or Tamil",
+      "url": "/#workspaceCard",
+      "icons": [
+        {
+          "src": "/static/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "1990 Suwa Seriya Emergency",
+      "short_name": "1990 Emergency",
+      "description": "Direct emergency triage and Sri Lankan ambulance contacts",
+      "url": "/#emergencySection",
+      "icons": [
+        {
+          "src": "/static/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Clinical Reference Ranges",
+      "short_name": "Lab Ranges",
+      "description": "Official Sri Lankan reference intervals for FBC, FBS, Lipid, Renal, and Liver profiles",
+      "url": "/#referenceRangesSection",
+      "icons": [
+        {
+          "src": "/static/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
