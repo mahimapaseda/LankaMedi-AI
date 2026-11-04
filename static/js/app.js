@@ -210,6 +210,17 @@ function setLanguage(lang) {
             }
         }
     });
+
+    // If results are currently showing and language was changed, inform user to re-analyze
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer && resultsContainer.style.display === 'block') {
+        const msg = lang === 'si'
+            ? 'භාෂාව වෙනස් විය. ප්‍රතිඵල සිංහලෙන් ලබා ගැනීමට කරුණාකර නැවත "වාර්තාව විශ්ලේෂණය කරන්න" ඔබන්න.'
+            : lang === 'ta'
+            ? 'மொழி மாற்றப்பட்டது. முடிவுகளை தமிழில் பெற மீண்டும் "பகுப்பாய்வு செய்" என்பதைக் கிளிக் செய்யவும்.'
+            : 'Language changed. Please click "Analyze Report" again to generate findings in English.';
+        showToast(msg);
+    }
 }
 
 function initTabs() {
