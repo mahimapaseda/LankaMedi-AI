@@ -2,860 +2,758 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>LankaMedi AI — Smart Medical Report Analysis for Sri Lanka</title>
+    
+    <!-- PWA Web App Manifest & Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: dark)">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#0ea5e9">
-    <title>LankaMedi AI - Smart Medical Report Analysis</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        :root {
-            --primary: #0ea5e9;
-            --primary-dark: #0284c7;
-            --secondary: #10b981;
-            --success: #059669;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-900: #0f172a;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 50%, #ffffff 100%);
-            min-height: 100vh;
-            line-height: 1.6;
-            color: var(--gray-700);
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-            animation: backgroundFloat 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .floating-shapes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 15s infinite linear;
-        }
-        
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            background: var(--primary);
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        
-        .shape:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            background: var(--secondary);
-            top: 60%;
-            left: 80%;
-            animation-delay: -5s;
-        }
-        
-        .shape:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            background: var(--primary);
-            top: 80%;
-            left: 20%;
-            animation-delay: -10s;
-        }
-        
-        .shape:nth-child(4) {
-            width: 40px;
-            height: 40px;
-            background: var(--secondary);
-            top: 30%;
-            left: 70%;
-            animation-delay: -7s;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            animation: slideDown 1s ease-out;
-        }
-        
-        .header h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 1rem;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        .header p {
-            font-size: 1.25rem;
-            color: rgba(255,255,255,0.9);
-            font-weight: 300;
-        }
-        
-        .main-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 2rem;
-            animation: slideUp 0.8s ease-out 0.2s both;
-        }
-        
-        .input-tabs {
-            display: flex;
-            background: var(--gray-100);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 2rem;
-            overflow: hidden;
-        }
-        
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--gray-600);
-            font-size: 0.95rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            box-shadow: var(--shadow-sm);
-            transform: translateY(-1px);
-        }
-        
-        .input-form {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.4s ease;
-            display: none;
-        }
-        
-        .input-form.active {
-            opacity: 1;
-            transform: translateY(0);
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--gray-700);
-            font-size: 0.95rem;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 16px;
-            border: 2px solid var(--gray-200);
-            border-radius: 12px;
-            font-size: 14px;
-            resize: vertical;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        input[type="file"] {
-            width: 100%;
-            padding: 20px;
-            border: 2px dashed var(--gray-300);
-            border-radius: 12px;
-            background: var(--gray-50);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        input[type="file"]:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 14px 32px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-md);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .btn:active {
-            transform: translateY(-1px);
-        }
-        
-        .btn:disabled {
-            background: var(--gray-300);
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .results {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255,255,255,0.2);
-            display: none;
-            animation: slideUp 0.6s ease-out;
-        }
-        
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-            animation: pulse 2s infinite;
-        }
-        
-        .metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .metric {
-            background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-100);
-            transition: all 0.3s ease;
-            animation: fadeInScale 0.6s ease-out;
-        }
-        
-        .metric:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            animation: countUp 1s ease-out;
-        }
-        
-        .metric-label {
-            color: var(--gray-600);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .treatment-plan {
-            margin-top: 2rem;
-        }
-        
-        .treatment-plan h3 {
-            color: var(--gray-900);
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        .plan-section {
-            margin-bottom: 2rem;
-        }
-        
-        .plan-section h4 {
-            color: var(--gray-800);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gray-200);
-        }
-        
-        .plan-item {
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 10px;
-            border-left: 4px solid var(--secondary);
-            transition: all 0.3s ease;
-            animation: slideInLeft 0.6s ease-out;
-            font-size: 0.95rem;
-        }
-        
-        .plan-item:hover {
-            transform: translateX(6px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .medication-item {
-            border-left-color: #dc3545;
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.02) 100%);
-        }
-        
-        .lifestyle-item {
-            border-left-color: var(--secondary);
-        }
-        
-        .notes-item {
-            border-left-color: var(--warning);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
-        }
-        
-        .condition-item {
-            border-left-color: var(--primary);
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(14, 165, 233, 0.03) 100%);
-            font-weight: 500;
-        }
-        
-        .disclaimer {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            color: var(--gray-700);
-            padding: 1.5rem;
-            border-radius: 16px;
-            margin-top: 2rem;
-            animation: slideUp 0.8s ease-out 0.4s both;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-            to { text-shadow: 0 4px 30px rgba(255,255,255,0.4); }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @keyframes countUp {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes backgroundFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(120deg); }
-            66% { transform: translateY(20px) rotate(240deg); }
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-            25% { transform: translateY(-20px) translateX(10px) rotate(90deg); }
-            50% { transform: translateY(0px) translateX(20px) rotate(180deg); }
-            75% { transform: translateY(20px) translateX(10px) rotate(270deg); }
-            100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
-        }
-        
-        @media (max-width: 1024px) {
-            .container { padding: 1.5rem; }
-            .main-card { padding: 2rem; }
-            .metrics { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        }
-        
-        @media (max-width: 768px) {
-            body { background: linear-gradient(180deg, #0ea5e9 0%, #10b981 100%); }
-            .container { padding: 0; max-width: 100%; }
-            .header { padding: 2rem 1rem 1rem; margin-bottom: 0; }
-            .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-            .header p { font-size: 1rem; }
-            .main-card { 
-                margin: 0;
-                border-radius: 24px 24px 0 0;
-                padding: 1.5rem;
-                min-height: calc(100vh - 120px);
-                position: relative;
-            }
-            .results { 
-                margin: 1rem 0 0;
-                border-radius: 16px;
-                padding: 1.5rem;
-            }
-            .input-tabs { 
-                background: rgba(255,255,255,0.1);
-                border-radius: 16px;
-                padding: 6px;
-                margin-bottom: 1.5rem;
-            }
-            .tab-btn { 
-                padding: 14px;
-                font-size: 0.9rem;
-                border-radius: 12px;
-                font-weight: 600;
-            }
-            .tab-btn.active {
-                background: white;
-                color: var(--primary);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
-            .metrics { grid-template-columns: 1fr; gap: 1rem; }
-            .metric { 
-                padding: 1.25rem;
-                border-radius: 12px;
-                background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
-                border: 1px solid rgba(14, 165, 233, 0.1);
-            }
-            .btn { 
-                width: 100%;
-                padding: 16px;
-                font-size: 16px;
-                border-radius: 16px;
-                margin-top: 1rem;
-            }
-            textarea { 
-                min-height: 120px;
-                border-radius: 16px;
-                font-size: 16px;
-            }
-            input[type="file"] {
-                padding: 16px;
-                border-radius: 16px;
-                font-size: 14px;
-            }
-            .status-badge {
-                padding: 10px 20px;
-                font-size: 1rem;
-                border-radius: 25px;
-            }
-            .recommendation {
-                padding: 1rem;
-                border-radius: 12px;
-                margin-bottom: 0.75rem;
-            }
-            .disclaimer {
-                margin: 1rem;
-                padding: 1rem;
-                border-radius: 12px;
-                font-size: 0.85rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header { padding: 1.5rem 1rem 0.5rem; }
-            .header h1 { font-size: 1.75rem; }
-            .header p { font-size: 0.9rem; }
-            .main-card { 
-                padding: 1rem;
-                border-radius: 20px 20px 0 0;
-                min-height: calc(100vh - 100px);
-            }
-            .results { padding: 1rem; }
-            .input-tabs { padding: 4px; }
-            .tab-btn { padding: 12px 8px; font-size: 0.85rem; }
-            .metric { padding: 1rem; }
-            .metric-value { font-size: 1.75rem; }
-            .btn { padding: 14px; font-size: 15px; }
-            textarea { min-height: 100px; }
-            .floating-shapes { display: none; }
-        }
-    </style>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LankaMedi AI">
+    <meta name="application-name" content="LankaMedi AI">
+    <meta name="msapplication-TileColor" content="#0f766e">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512x512.png') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-    
-    <div class="container">
-        <div class="header">
-            <h1>🏥 LankaMedi AI</h1>
-            <p>Smart Medical Report Analysis powered by NVIDIA AI for Sri Lanka</p>
+    <!-- Offline Indicator Banner (PWA) -->
+    <aside class="offline-banner" id="offlineBanner" role="status" aria-live="polite" hidden>
+        <div class="offline-banner-content">
+            <span class="offline-pulse" aria-hidden="true"></span>
+            <span class="offline-msg" data-i18n="pwaOfflineAlert">
+                📡 <strong>Offline Mode:</strong> Internet disconnected. Saved lab reference ranges and 1990 emergency contacts remain active.
+            </span>
         </div>
+    </aside>
 
-        <div class="main-card">
-            <div class="input-tabs">
-                <button type="button" class="tab-btn active" onclick="switchTab('file')">
-                    📄 File Upload
-                </button>
-                <button type="button" class="tab-btn" onclick="switchTab('text')">
-                    📝 Text Input
-                </button>
-            </div>
-            
-            <form id="textForm" class="input-form">
-                <div class="form-group">
-                    <label for="reportText">Medical Report Text</label>
-                    <textarea id="reportText" placeholder="Paste your medical report text here for AI analysis..."></textarea>
-                </div>
-                <button type="submit" class="btn" id="analyzeTextBtn">
-                    <span class="btn-text">Analyze Report</span>
-                </button>
-            </form>
-            
-            <form id="fileForm" class="input-form active" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="reportFile">Upload Medical Report</label>
-                    <input type="file" id="reportFile" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff" required>
-                    <small style="color: var(--gray-600); margin-top: 8px; display: block; font-size: 0.85rem;">
-                        ✨ Supported formats: PDF, PNG, JPG, JPEG, BMP, TIFF
-                    </small>
-                </div>
-                <button type="submit" class="btn" id="analyzeFileBtn">
-                    <span class="btn-text">Analyze File</span>
-                </button>
-            </form>
-        </div>
-
-        <div id="results" class="results">
-            <div id="statusBadge" class="status-badge"></div>
-            
-            <div class="metrics">
-                <div class="metric">
-                    <div id="criticalCount" class="metric-value">0</div>
-                    <div class="metric-label">Critical Issues</div>
-                </div>
-                <div class="metric">
-                    <div id="warningCount" class="metric-value">0</div>
-                    <div class="metric-label">Warning Signs</div>
-                </div>
-                <div class="metric">
-                    <div id="positiveCount" class="metric-value">0</div>
-                    <div class="metric-label">Positive Indicators</div>
-                </div>
-            </div>
-
-            <div class="treatment-plan">
-                <h3>📋 Treatment Plan</h3>
-                
-                <div class="plan-section">
-                    <h4>🩺 Medical Conditions</h4>
-                    <div id="conditionsList"></div>
-                </div>
-                
-                <div class="plan-section">
-                    <h4>💊 Medications</h4>
-                    <div id="medicationsList"></div>
-                </div>
-                
-                <div class="plan-section">
-                    <h4>🍽️ Lifestyle Recommendations</h4>
-                    <div id="lifestyleList"></div>
-                </div>
-                
-                <div class="plan-section">
-                    <h4>📝 Clinical Notes</h4>
-                    <div id="notesList"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="disclaimer">
-            <strong>⚠️ Medical Disclaimer:</strong> LankaMedi AI provides analysis for informational purposes only and should not replace professional medical advice. Always consult with qualified healthcare providers for medical decisions.
-        </div>
-        
-        <footer style="text-align: center; padding: 2rem 1rem; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-top: 2rem;">
-            <p>💡 Idea & Developer: <strong>Mahima Paseda Kusumsiri</strong></p>
-            <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">© 2025 LankaMedi AI - Made in Sri Lanka 🇱🇰</p>
-        </footer>
+    <!-- Clinical Ambient Glow & Subtle Dot Grid Canvas -->
+    <div class="clinical-bg-canvas" aria-hidden="true">
+        <div class="clinical-dot-grid"></div>
+        <div class="clinical-ambient-glow glow-top-left"></div>
+        <div class="clinical-ambient-glow glow-top-right"></div>
+        <div class="clinical-ambient-glow glow-center"></div>
     </div>
 
-    <script>
-        function switchTab(type) {
-            // Remove active classes
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.input-form').forEach(form => form.classList.remove('active'));
-            
-            // Add active class to selected tab and form
-            if (type === 'file') {
-                document.querySelector('.tab-btn').classList.add('active');
-                document.getElementById('fileForm').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('textForm').classList.add('active');
-            }
-        }
-        
-        // Text form handler
-        document.getElementById('textForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const reportText = document.getElementById('reportText').value.trim();
-            const analyzeBtn = document.getElementById('analyzeTextBtn');
-            
-            if (!reportText) {
-                alert('Please enter medical report text');
-                return;
-            }
-            
-            await analyzeReport({
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ report_text: reportText })
-            }, analyzeBtn, 'Analyze Report');
-        });
-        
-        // File form handler (PDF or Image)
-        document.getElementById('fileForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const reportFile = document.getElementById('reportFile').files[0];
-            const analyzeBtn = document.getElementById('analyzeFileBtn');
-            
-            if (!reportFile) {
-                alert('Please select a file');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('report_file', reportFile);
-            
-            await analyzeReport({
-                method: 'POST',
-                body: formData
-            }, analyzeBtn, 'Analyze File');
-        });
-        
-        async function analyzeReport(fetchOptions, button, originalText) {
-            const results = document.getElementById('results');
-            const btnText = button.querySelector('.btn-text');
-            
-            button.disabled = true;
-            btnText.innerHTML = '<span class="loading-spinner"></span>Analyzing...';
-            results.style.display = 'none';
-            
-            try {
-                const response = await fetch('/analyze', fetchOptions);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    displayResults(data);
-                } else {
-                    throw new Error(data.error || 'Analysis failed');
-                }
-            } catch (error) {
-                showNotification('Error: ' + error.message, 'error');
-            } finally {
-                button.disabled = false;
-                btnText.textContent = originalText;
-            }
-        }
-        
-        function displayResults(data) {
-            const statusBadge = document.getElementById('statusBadge');
-            statusBadge.textContent = data.status;
-            statusBadge.style.backgroundColor = data.color;
-            statusBadge.style.color = 'white';
-            
-            // Animate counter values
-            animateCounter('criticalCount', data.critical_issues);
-            animateCounter('warningCount', data.warning_issues);
-            animateCounter('positiveCount', data.positive_indicators);
-            
-            // Display treatment plan
-            displayTreatmentPlan(data.treatment_plan);
-            
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function animateCounter(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            let currentValue = 0;
-            const increment = targetValue / 30;
-            const timer = setInterval(() => {
-                currentValue += increment;
-                if (currentValue >= targetValue) {
-                    element.textContent = targetValue;
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(currentValue);
-                }
-            }, 50);
-        }
-        
-        function displayTreatmentPlan(plan) {
-            // Display medical conditions
-            const conditionsList = document.getElementById('conditionsList');
-            conditionsList.innerHTML = '';
-            plan.conditions.forEach((condition, index) => {
-                const div = document.createElement('div');
-                div.className = 'plan-item condition-item';
-                div.textContent = condition;
-                div.style.animationDelay = `${index * 0.1}s`;
-                conditionsList.appendChild(div);
-            });
-            
-            // Display medications
-            const medicationsList = document.getElementById('medicationsList');
-            medicationsList.innerHTML = '';
-            plan.medications.forEach((med, index) => {
-                const div = document.createElement('div');
-                div.className = 'plan-item medication-item';
-                div.textContent = med;
-                div.style.animationDelay = `${(plan.conditions.length + index) * 0.1}s`;
-                medicationsList.appendChild(div);
-            });
-            
-            // Display lifestyle recommendations
-            const lifestyleList = document.getElementById('lifestyleList');
-            lifestyleList.innerHTML = '';
-            plan.lifestyle.forEach((lifestyle, index) => {
-                const div = document.createElement('div');
-                div.className = 'plan-item lifestyle-item';
-                div.textContent = lifestyle;
-                div.style.animationDelay = `${(plan.conditions.length + plan.medications.length + index) * 0.1}s`;
-                lifestyleList.appendChild(div);
-            });
-            
-            // Display clinical notes
-            const notesList = document.getElementById('notesList');
-            notesList.innerHTML = '';
-            plan.notes.forEach((note, index) => {
-                const div = document.createElement('div');
-                div.className = 'plan-item notes-item';
-                div.textContent = note;
-                div.style.animationDelay = `${(plan.conditions.length + plan.medications.length + plan.lifestyle.length + index) * 0.1}s`;
-                notesList.appendChild(div);
-            });
-        }
-        
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 16px 24px;
-                border-radius: 12px;
-                color: white;
-                font-weight: 500;
-                z-index: 1000;
-                animation: slideInRight 0.3s ease;
-                background: ${type === 'error' ? 'var(--danger)' : 'var(--success)'};
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-    </script>
+    <!-- Fixed Glassmorphic Navigation Bar (inspired by Delta Gemunupura College architecture) -->
+    <nav class="glass-nav" id="mainNav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span class="nav-logo-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
+                        <path d="M16 6v20M6 16h20" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <div class="nav-brand-text">
+                    LankaMedi <em>AI</em>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Menu -->
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#workspaceCard" class="nav-link">
+                        <span data-i18n="navAnalyze">Analyze</span>
+                    </a>
+                </li>
+                <li class="nav-item has-dropdown">
+                    <a href="#" class="nav-link" aria-haspopup="true">
+                        <span data-i18n="navGuide">Clinical Guide</span>
+                        <i class="dropdown-chevron" aria-hidden="true">▾</i>
+                    </a>
+                    <div class="nav-dropdown" role="menu">
+                        <div class="nav-dropdown-head">
+                            <strong data-i18n="navGuide">Clinical Guide</strong>
+                            <span data-i18n="navGuideHint">Learn the workflow before you upload</span>
+                        </div>
+                        <a href="#howItWorks" class="dropdown-item" role="menuitem">
+                            <span class="dropdown-icon" aria-hidden="true">⚙️</span>
+                            <span class="dropdown-copy">
+                                <strong data-i18n="navHow">How It Works</strong>
+                                <small data-i18n="navHowHint">Privacy-first 4-step analysis flow</small>
+                            </span>
+                        </a>
+                        <a href="#supportedLabs" class="dropdown-item" role="menuitem">
+                            <span class="dropdown-icon" aria-hidden="true">🏥</span>
+                            <span class="dropdown-copy">
+                                <strong data-i18n="navLabs">Supported Labs</strong>
+                                <small data-i18n="navLabsHint">Asiri, Nawaloka, Durdans & more</small>
+                            </span>
+                        </a>
+                        <a href="#referenceRangesSection" class="dropdown-item" role="menuitem">
+                            <span class="dropdown-icon" aria-hidden="true">📊</span>
+                            <span class="dropdown-copy">
+                                <strong data-i18n="navRanges">Reference Ranges</strong>
+                                <small data-i18n="navRangesHint">SLMA-aligned biomarker intervals</small>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#emergencySection" class="nav-link">
+                        <span data-i18n="navEmergency">1990 Emergency</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#faqSection" class="nav-link">
+                        <span data-i18n="navFaq">FAQ</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Desktop Actions -->
+            <div class="nav-actions">
+                <!-- PWA Install Action Button -->
+                <button type="button" class="pwa-install-pill" id="pwaInstallBtn" hidden title="Install LankaMedi AI app on your device">
+                    <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 3v10M6 9l4 4 4-4M3 15v2h14v-2"/>
+                    </svg>
+                    <span data-i18n="pwaInstall">Install App</span>
+                </button>
+
+                <div class="lang-selector" role="group" aria-label="Language Selector">
+                    <button type="button" class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button type="button" class="lang-btn" data-lang="si" onclick="setLanguage('si')">සිං</button>
+                    <button type="button" class="lang-btn" data-lang="ta" onclick="setLanguage('ta')">த</button>
+                </div>
+                <a href="tel:1990" class="emergency-btn-header" title="Call 1990 Suwa Seriya Ambulance">
+                    🚨 1990
+                </a>
+                <!-- Mobile Hamburger Toggle -->
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Drawer Overlay & Sliding Drawer -->
+    <div class="mobile-overlay" id="mobileOverlay" hidden>
+        <div class="mobile-menu-drawer">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo-box" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
+                        <path d="M16 6v20M6 16h20" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="mobile-menu-brand">
+                    <h4>LankaMedi AI</h4>
+                    <span data-i18n="mobileMenuTag">Menu</span>
+                </div>
+                <button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close menu">✕</button>
+            </div>
+
+            <!-- Mobile Language Switcher Row -->
+            <div class="mobile-lang-row">
+                <span class="mobile-lang-label">Language:</span>
+                <div class="lang-selector" role="group">
+                    <button type="button" class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button type="button" class="lang-btn" data-lang="si" onclick="setLanguage('si')">සිංහල</button>
+                    <button type="button" class="lang-btn" data-lang="ta" onclick="setLanguage('ta')">தமிழ்</button>
+                </div>
+            </div>
+
+            <!-- Mobile PWA Install Box -->
+            <div class="mobile-pwa-box" id="mobilePwaBox" hidden>
+                <button type="button" class="mobile-pwa-btn" id="mobilePwaBtn">
+                    <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 3v10M6 9l4 4 4-4M3 15v2h14v-2"/>
+                    </svg>
+                    <span data-i18n="pwaInstallMobile">Install LankaMedi AI App</span>
+                </button>
+            </div>
+
+            <ul class="mobile-nav-menu">
+                <li class="mobile-nav-item">
+                    <a href="#workspaceCard" class="mobile-nav-link">
+                        <span class="mobile-link-icon">📄</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navAnalyze">Analyze Report</strong>
+                            <span>Upload slip or paste report text</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="#howItWorks" class="mobile-nav-link">
+                        <span class="mobile-link-icon">⚙️</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navHow">How It Works</strong>
+                            <span>4-step privacy and clinical AI flow</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="#supportedLabs" class="mobile-nav-link">
+                        <span class="mobile-link-icon">🏥</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navLabs">Supported Labs</strong>
+                            <span>Asiri, Nawaloka, Durdans & NHSL</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="#referenceRangesSection" class="mobile-nav-link">
+                        <span class="mobile-link-icon">📊</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navRanges">Reference Ranges</strong>
+                            <span>SLMA standard clinical intervals</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="#emergencySection" class="mobile-nav-link">
+                        <span class="mobile-link-icon">🚨</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navEmergency">1990 Emergency</strong>
+                            <span>Suwa Seriya ambulance & hotlines</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="#faqSection" class="mobile-nav-link">
+                        <span class="mobile-link-icon">❓</span>
+                        <div class="mobile-nav-text">
+                            <strong data-i18n="navFaq">FAQ</strong>
+                            <span>Privacy, Dengue & clinician advice</span>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="mobile-menu-footer">
+                <a href="tel:1990" class="mobile-cta-btn">
+                    🚨 Call 1990 Suwa Seriya Free Ambulance
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page">
+        <!-- Hero & Workspace Split Section -->
+        <section class="hero-split">
+            <div class="hero-copy">
+                <p class="hero-eyebrow" data-i18n="heroEyebrow">Clinical report analysis in seconds</p>
+
+                <h1 class="hero-title">
+                    <span class="hero-kicker" data-i18n="heroLine1">Understand your</span>
+                    <span class="hero-focus">
+                        <span class="pill-highlight" data-i18n="heroPill1">lab results</span>
+                        <span data-i18n="heroLine2">with</span>
+                        <span class="pill-highlight pill-highlight--alt" data-i18n="heroPill2">clear AI insights</span>
+                    </span>
+                    <span class="hero-line-soft" data-i18n="heroLine3">built for patients and clinics</span>
+                </h1>
+
+                <p class="hero-subtitle" data-i18n="heroSubtitle">
+                    Upload a PDF or photo, or paste report text. Get biomarker readings, risk flags, and doctor-ready discussion points.
+                </p>
+
+                <div class="hero-cta-row">
+                    <button type="button" class="btn-pill-primary" id="startConversationBtn" data-i18n="btnStart">Analyze My Report</button>
+                    <a href="#howItWorks" class="btn-text-link" data-i18n="navHow">How it works</a>
+                </div>
+
+                <div class="hero-stats" aria-label="Product highlights">
+                    <div class="hero-stat">
+                        <strong data-i18n="statOcrValue">OCR</strong>
+                        <span data-i18n="chipOcr">PDF & photo ready</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong data-i18n="statLangValue">3</strong>
+                        <span data-i18n="chipLang">EN · SI · TA</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong data-i18n="statPrivacyValue">PII</strong>
+                        <span data-i18n="chipPrivacy">NIC masked first</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Workspace Column -->
+            <main class="workspace-card" id="workspaceCard">
+                <div class="workspace-header">
+                    <div>
+                        <h2 data-i18n="workspaceTitle">Analyze Medical Report</h2>
+                        <p data-i18n="workspaceHint">Your sensitive information (NIC, phone numbers, names) is masked automatically before processing.</p>
+                    </div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="presets-container">
+                    <span class="preset-label" data-i18n="samplePresetLabel">Quick Sample Scenarios:</span>
+                    <div class="presets-row">
+                        <button type="button" class="preset-pill" data-preset="dengue" data-i18n="presetDengue">🩸 Dengue Warning (Low Platelets)</button>
+                        <button type="button" class="preset-pill" data-preset="diabetes" data-i18n="presetDiabetes">🍬 Diabetes & Cholesterol</button>
+                        <button type="button" class="preset-pill" data-preset="kidney" data-i18n="presetKidney">🫘 Kidney Screening</button>
+                        <button type="button" class="preset-pill" data-preset="normal" data-i18n="presetNormal">🩺 Normal Routine Checkup</button>
+                    </div>
+                </div>
+
+                <!-- Tabs Header -->
+                <div class="tabs-header">
+                    <button type="button" class="tab-trigger active" data-tab="file" data-i18n="tabFile">
+                        📄 Document / Photo Upload
+                    </button>
+                    <button type="button" class="tab-trigger" data-tab="text" data-i18n="tabText">
+                        📝 Paste Report Text
+                    </button>
+                </div>
+
+                <!-- Tab 1: File Dropzone -->
+                <div id="fileTabPanel">
+                    <div class="dropzone" id="dropzone">
+                        <div class="dropzone-icon" aria-hidden="true">
+                            <svg width="42" height="42" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 data-i18n="dropzoneTitle">Drag & drop your lab report here</h3>
+                        <p data-i18n="dropzoneSubtitle">or click to browse from device (PDF, PNG, JPG, JPEG, WEBP)</p>
+                        <span class="dropzone-formats" data-i18n="dropzoneFormats">Supports all Sri Lankan lab formats: Asiri, Nawaloka, Durdans, Hemas, General Hospital</span>
+                        <input type="file" id="fileInput" class="file-input-hidden" accept=".pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff">
+                    </div>
+
+                    <div class="file-preview" id="filePreview">
+                        <div class="file-info">
+                            <div class="file-thumbnail" id="previewThumb">📄</div>
+                            <div class="file-meta">
+                                <h4 id="previewFileName">report.pdf</h4>
+                                <p id="previewFileSize">1.2 MB</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-remove-file" id="removeFileBtn" title="Remove file">✕</button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Textarea & Privacy Audit -->
+                <div id="textTabPanel" class="text-input-panel">
+                    <div class="textarea-header">
+                        <label for="reportTextArea" class="textarea-label" data-i18n="textareaLabel">Enter or paste lab test results / clinical notes:</label>
+                        <button type="button" class="btn-audit" id="btnAuditPrivacy" data-i18n="btnAuditPrivacy">
+                            🛡️ Audit Privacy (Mask NIC & Phone)
+                        </button>
+                    </div>
+                    <textarea id="reportTextArea" class="report-textarea" data-i18n="textareaPlaceholder" placeholder="Paste Fasting Blood Sugar (FBS), Platelet count (FBC), Serum Creatinine, Lipid profile, or doctor notes..."></textarea>
+                </div>
+
+                <div class="action-bar">
+                    <button type="button" class="btn-primary-action" id="analyzeBtn">
+                        <span class="spinner" style="display:none;"></span>
+                        <span class="btn-label" data-i18n="btnAnalyze">Analyze Report</span>
+                    </button>
+                </div>
+            </main>
+        </section>
+
+        <!-- Stats & Impact Ribbon (Full-Width Edge-to-Edge) -->
+        <section class="stats-ribbon">
+            <div class="stats-ribbon-container">
+                <div class="stat-card">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">Supported Lab Panels</div>
+                    <div class="stat-sub">FBC, FBS, Lipids, Renal, LFT</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Client-Side PII Masking</div>
+                    <div class="stat-sub">NIC & Phone de-identification</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Languages Supported</div>
+                    <div class="stat-sub">English, සිංහල & தமிழ்</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-card stat-card--emergency">
+                    <div class="stat-number">1990</div>
+                    <div class="stat-label">Suwa Seriya Ambulance</div>
+                    <div class="stat-sub">Automated critical triage</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Emergency Alert Banner (Sri Lanka 1990 Suwa Seriya) -->
+        <section class="emergency-banner" id="emergencyBanner">
+            <div class="emergency-banner-content">
+                <h3 data-i18n="emergencyTitle">🚨 CRITICAL MEDICAL ALERT: IMMEDIATE ACTION REQUIRED</h3>
+                <p id="emergencyReason"></p>
+                <p id="emergencyActionPlan" class="emergency-action"></p>
+            </div>
+            <a href="tel:1990" class="emergency-call-btn" data-i18n="emergencyCallBtn">
+                📞 Call 1990 Suwa Seriya Ambulance
+            </a>
+        </section>
+
+        <!-- Comprehensive Results Container -->
+        <section class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <div>
+                    <h3 class="results-main-title" data-i18n="resultsTitle">Clinical Analysis Summary</h3>
+                    <p class="status-explanation" id="statusDescription"></p>
+                </div>
+
+                <div class="results-header-actions">
+                    <div class="status-indicator" id="statusBadge">Status</div>
+                    <button type="button" class="btn-action-icon" id="shareWhatsAppBtn" title="Share on WhatsApp" data-i18n="btnShareWhatsApp">
+                        📱 WhatsApp
+                    </button>
+                    <button type="button" class="btn-action-icon" id="exportBtn" title="Print Summary" data-i18n="btnExport">
+                        🖨️ Print / Save PDF
+                    </button>
+                    <button type="button" class="btn-action-icon btn-reset" id="resetAnalysisBtn" data-i18n="btnReset">
+                        🔄 New Analysis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metrics Overview Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card critical">
+                    <div class="metric-value" id="criticalIssuesCount">0</div>
+                    <div class="metric-title" data-i18n="metricCritical">Critical Issues</div>
+                </div>
+                <div class="metric-card warning">
+                    <div class="metric-value" id="warningIssuesCount">0</div>
+                    <div class="metric-title" data-i18n="metricWarning">Warning Signs</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="metric-value" id="positiveIndicatorsCount">0</div>
+                    <div class="metric-title" data-i18n="metricPositive">Positive Indicators</div>
+                </div>
+            </div>
+
+            <!-- Evaluated Biomarkers with Interactive Range Gauges -->
+            <div class="biomarkers-section" id="biomarkersSection">
+                <h3 class="section-title" data-i18n="sectionBiomarkers">
+                    🔬 Evaluated Biomarkers & Standard Reference Intervals
+                </h3>
+                <div class="biomarkers-grid" id="biomarkersContainer"></div>
+            </div>
+
+            <!-- 4-Column Clinical Guidance Grid -->
+            <div class="plan-grid">
+                <div class="plan-column conditions-col">
+                    <h4 data-i18n="sectionConditions">🩺 Observed Conditions & Differential Findings</h4>
+                    <ul class="plan-items-list" id="conditionsList"></ul>
+                </div>
+                <div class="plan-column meds-col">
+                    <h4 data-i18n="sectionMedications">💊 Medication Topics for Doctor Discussion</h4>
+                    <ul class="plan-items-list" id="medicationsList"></ul>
+                </div>
+                <div class="plan-column lifestyle-col">
+                    <h4 data-i18n="sectionLifestyle">🥗 Sri Lankan Dietary & Lifestyle Guidance</h4>
+                    <ul class="plan-items-list" id="lifestyleList"></ul>
+                </div>
+                <div class="plan-column notes-col">
+                    <h4 data-i18n="sectionNotes">📝 Clinical Notes & Monitoring Protocols</h4>
+                    <ul class="plan-items-list" id="notesList"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: How LankaMedi AI Works -->
+        <section class="content-section" id="howItWorks">
+            <div class="section-heading-center">
+                <span class="section-pill">Clinical Workflow</span>
+                <h2 data-i18n="howTitle">How LankaMedi AI Works</h2>
+                <p data-i18n="howSubtitle">A 4-step clinical pipeline built for patient safety, privacy, and clinical accuracy.</p>
+            </div>
+
+            <div class="how-grid">
+                <div class="how-card">
+                    <div class="how-icon">📄</div>
+                    <h3 data-i18n="howStep1Title">1. Multi-Format Upload</h3>
+                    <p data-i18n="howStep1Desc">Upload photographed lab slips, scanned PDFs, or paste medical text directly. Automatic image enhancement ensures high OCR legibility.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">🛡️</div>
+                    <h3 data-i18n="howStep2Title">2. PII / NIC Redaction</h3>
+                    <p data-i18n="howStep2Desc">Before sending data anywhere, Sri Lankan National Identity Card (NIC) numbers, telephone numbers, emails, and patient names are stripped.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">🔬</div>
+                    <h3 data-i18n="howStep3Title">3. Biomarker Range Match</h3>
+                    <p data-i18n="howStep3Desc">Values (Platelets, FBS, HbA1c, Creatinine, Cholesterol) are evaluated against established Sri Lanka Medical Association (SLMA) intervals.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">🤖</div>
+                    <h3 data-i18n="howStep4Title">4. Trilingual AI Synthesis</h3>
+                    <p data-i18n="howStep4Desc">Advanced AI models (NVIDIA NIM & Google Gemini) synthesize personalized summaries in English, Sinhala, or Tamil with 1990 triage.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Supported Diagnostic Formats -->
+        <section class="content-section" id="supportedLabs">
+            <div class="section-heading-center">
+                <span class="section-pill">Hospital & Lab Compatibility</span>
+                <h2 data-i18n="labsTitle">Supported Diagnostic Formats</h2>
+                <p data-i18n="labsSubtitle">Pre-calibrated to recognize laboratory reports from leading private diagnostic chains and government healthcare facilities in Sri Lanka.</p>
+            </div>
+
+            <div class="labs-badges-grid">
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏥</div>
+                    <h4>Asiri Health Diagnostics</h4>
+                    <span>FBC, Lipid, HbA1c, LFT, Renal</span>
+                </div>
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏥</div>
+                    <h4>Nawaloka Hospitals</h4>
+                    <span>Biochemistry, Hematology, Glucose</span>
+                </div>
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏥</div>
+                    <h4>Durdans Hospital</h4>
+                    <span>Executive checkups, Cardiac, Liver</span>
+                </div>
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏥</div>
+                    <h4>Hemas Hospitals</h4>
+                    <span>Dengue NS1/Platelets, Renal</span>
+                </div>
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏥</div>
+                    <h4>Lanka Hospitals</h4>
+                    <span>Endocrinology, Full Blood Count</span>
+                </div>
+                <div class="lab-badge-card">
+                    <div class="lab-badge-icon">🏛️</div>
+                    <h4>NHSL & Government Hospitals</h4>
+                    <span>General clinic slips, Ward reports</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Interactive Lab Reference Range Explorer -->
+        <section class="content-section" id="referenceRangesSection">
+            <div class="section-heading-center">
+                <span class="section-pill">Educational Guide</span>
+                <h2 data-i18n="rangesTitle">Interactive Lab Reference Range Explorer</h2>
+                <p data-i18n="rangesSubtitle">Learn what common blood and diagnostic test values mean in Sri Lanka.</p>
+            </div>
+
+            <div class="ref-ranges-grid" id="referenceRangesGrid">
+                <!-- Dynamically loaded via /api/v1/reference-ranges -->
+                <div class="loading-placeholder">Loading clinical reference intervals...</div>
+            </div>
+        </section>
+
+        <!-- Section: Sri Lanka Emergency Helplines -->
+        <section class="content-section" id="emergencySection">
+            <div class="section-heading-center">
+                <span class="section-pill section-pill--danger">Emergency Support</span>
+                <h2 data-i18n="emergencySectionTitle">Sri Lanka Emergency & Health Helplines</h2>
+                <p data-i18n="emergencySectionSubtitle">Keep these official Sri Lankan toll-free emergency and health information hotlines handy.</p>
+            </div>
+
+            <div class="emergency-cards-grid">
+                <div class="emergency-info-card emergency-card--primary">
+                    <div class="em-number">1990</div>
+                    <h4>1990 Suwa Seriya Ambulance</h4>
+                    <p>Free island-wide pre-hospital emergency ambulance response service with trained paramedical staff.</p>
+                    <a href="tel:1990" class="btn-call-helpline">📞 Dial 1990 (Toll-Free)</a>
+                </div>
+
+                <div class="emergency-info-card">
+                    <div class="em-number">011-2686143</div>
+                    <h4>National Poisons Information Centre</h4>
+                    <p>National Hospital of Sri Lanka (NHSL Colombo) 24/7 toxicological consultation & poison emergencies.</p>
+                    <a href="tel:0112686143" class="btn-call-helpline">📞 Dial 011-2686143</a>
+                </div>
+
+                <div class="emergency-info-card">
+                    <div class="em-number">1959</div>
+                    <h4>National Drug Information Centre</h4>
+                    <p>Official public helpline for medicine safety, adverse reactions, and pharmaceutical guidance.</p>
+                    <a href="tel:1959" class="btn-call-helpline">📞 Dial 1959</a>
+                </div>
+
+                <div class="emergency-info-card">
+                    <div class="em-number">1926</div>
+                    <h4>National Mental Health Helpline</h4>
+                    <p>National Institute of Mental Health (NIMH Sri Lanka) confidential mental health counseling & crisis support.</p>
+                    <a href="tel:1926" class="btn-call-helpline">📞 Dial 1926 (Toll-Free)</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: FAQ Accordion -->
+        <section class="content-section" id="faqSection">
+            <div class="section-heading-center">
+                <span class="section-pill">Common Questions</span>
+                <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+                <p data-i18n="faqSubtitle">Everything you need to know about safety, privacy, and report analysis.</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Is my medical report data or identity saved on any server?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No. LankaMedi AI operates with zero permanent patient storage. Furthermore, all Sri Lankan National Identity Card (NIC) numbers, telephone numbers, and patient names are de-identified locally before being processed by AI models.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Can I photograph a printed paper report with my mobile phone?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes. You can take a photo of your printed lab slip (PNG, JPG, WEBP) or upload a PDF. Our cloud OCR engine enhances contrast and extracts the laboratory parameters automatically.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>How does the system help during Dengue season in Sri Lanka?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>The system specifically evaluates Platelet counts from Full Blood Count (FBC) reports. If platelets drop below 50,000 /uL or 20,000 /uL, it triggers an emergency triage protocol alerting you to seek immediate hospital admission or dial 1990 Suwa Seriya.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Does this replace consultation with my family doctor?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No. LankaMedi AI is strictly an educational decision-support tool. All interpretations and medication discussion topics must be validated by a registered Sri Lankan medical practitioner or consultant physician.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compliance & Medical Notice -->
+        <aside class="disclaimer-card">
+            <strong data-i18n="disclaimerTitle">Medical AI Notice & Compliance:</strong>
+            <span data-i18n="disclaimerBody">
+                LankaMedi AI provides educational summaries only and does NOT replace licensed physician judgment or diagnosis. Always consult a qualified clinician.
+            </span>
+        </aside>
+
+    </div><!-- /.page -->
+
+    <!-- Sleek & Compact Dark Clinical Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <!-- Col 1: Brand & Trust Badges -->
+                <div class="footer-section footer-brand-section">
+                    <div class="footer-logo">
+                        <span class="footer-logo-mark" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" width="26" height="26" fill="none">
+                                <rect width="32" height="32" rx="8" fill="#0f766e"/>
+                                <path d="M16 8v16M8 16h16" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <h3 class="footer-brand-title">LankaMedi <em>AI</em></h3>
+                            <span class="footer-badge-pulse">🟢 Active Decision Support</span>
+                        </div>
+                    </div>
+                    <p class="footer-bio">
+                        Sri Lanka's open-source clinical AI analysis platform. Custom-engineered for client-side privacy, SLMA physiological ranges, and 1990 emergency triage.
+                    </p>
+                    <div class="footer-trust-chips">
+                        <span class="f-chip">🇱🇰 Sri Lanka</span>
+                        <span class="f-chip">🛡️ PII Masked</span>
+                        <span class="f-chip">📲 PWA Offline Ready</span>
+                        <span class="f-chip">MIT License</span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Quick Navigation & Developer Info -->
+                <div class="footer-section footer-nav-section">
+                    <h4>Platform &amp; Guidelines</h4>
+                    <ul class="footer-links-grid">
+                        <li><a href="#workspaceCard">Analyze Report</a></li>
+                        <li><a href="#howItWorks">How It Works</a></li>
+                        <li><a href="#supportedLabs">Supported Labs</a></li>
+                        <li><a href="#referenceRangesSection">SLMA Intervals</a></li>
+                        <li><a href="#emergencySection">1990 Triage</a></li>
+                        <li><a href="#faqSection">FAQs</a></li>
+                    </ul>
+                    <div class="footer-dev-inline">
+                        <span>Lead Developer:</span>
+                        <strong>Mahima Paseda Kusumsiri</strong>
+                        <small>Sri Lanka • 2026</small>
+                    </div>
+                </div>
+
+                <!-- Col 3: Sri Lankan Emergency Helplines 2x2 Grid -->
+                <div class="footer-section footer-helpline-section">
+                    <h4>Emergency Helplines</h4>
+                    <div class="helpline-grid">
+                        <a href="tel:1990" class="helpline-card emergency-primary" title="Call 1990 Suwa Seriya Ambulance">
+                            <div class="hl-top">
+                                <span class="hl-badge">24/7 FREE</span>
+                                <strong class="hl-num">🚑 1990</strong>
+                            </div>
+                            <span class="hl-name">Suwa Seriya Ambulance</span>
+                        </a>
+
+                        <a href="tel:0112686143" class="helpline-card" title="Call National Poisons Center">
+                            <div class="hl-top">
+                                <span class="hl-badge">NHSL</span>
+                                <strong class="hl-num">🧪 011-2686143</strong>
+                            </div>
+                            <span class="hl-name">National Poisons Info</span>
+                        </a>
+
+                        <a href="tel:1959" class="helpline-card" title="Call Drug Information Hotline">
+                            <div class="hl-top">
+                                <span class="hl-badge">HOTLINE</span>
+                                <strong class="hl-num">💊 1959</strong>
+                            </div>
+                            <span class="hl-name">Drug Information</span>
+                        </a>
+
+                        <a href="tel:1926" class="helpline-card" title="Call NIMH Mental Health Hotline">
+                            <div class="hl-top">
+                                <span class="hl-badge">NIMH</span>
+                                <strong class="hl-num">🧠 1926</strong>
+                            </div>
+                            <span class="hl-name">Mental Health Support</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    © 2026 <strong>LankaMedi AI</strong>. Educational decision support only • Not a replacement for a doctor.
+                </div>
+                <div class="footer-bottom-actions">
+                    <a href="#mainNav" class="back-to-top-btn" title="Back to top">
+                        Back to top ↑
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
