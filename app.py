@@ -1,188 +1,259 @@
 from flask import Flask, render_template, request, jsonify
-import re
-import json
-import PyPDF2
 from io import BytesIO
-from PIL import Image
-import os
+from dotenv import load_dotenv
 import base64
+import json
+import os
+import re
 import requests
+import PyPDF2
 
-# Cloud OCR using OCR.space API
-def cloud_ocr(image_bytes):
-    try:
-        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-        url = 'https://api.ocr.space/parse/image'
-        payload = {
-            'base64Image': f'data:image/png;base64,{image_b64}',
-            'apikey': 'helloworld',
-            'language': 'eng'
-        }
-        response = requests.post(url, data=payload, timeout=30)
-        result = response.json()
-        if result.get('IsErroredOnProcessing', True):
-            return None
-        return result['ParsedResults'][0]['ParsedText']
-    except:
-        return None
+load_dotenv()
 
 app = Flask(__name__)
 
-class MedicalAnalyzer:
-    def __init__(self):
-        # Critical indicators that suggest immediate attention
-        self.critical_keywords = [
-            'malignant', 'cancer', 'tumor', 'metastasis', 'severe', 'critical',
-            'emergency', 'acute', 'hemorrhage', 'stroke', 'heart attack'
-        ]
-        
-        # Warning indicators
-        self.warning_keywords = [
-            'abnormal', 'elevated', 'high', 'low', 'irregular', 'inflammation',
-            'infection', 'hypertension', 'diabetes', 'cholesterol'
-        ]
-        
-        # Normal/positive indicators
-        self.positive_keywords = [
-            'normal', 'healthy', 'stable', 'good', 'excellent', 'within range',
-            'no abnormalities', 'clear'
-        ]
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
+NVIDIA_BASE_URL = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/")
+NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3.5-bolt-e4b").strip()
+OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY", "").strip()
 
+STATUS_COLORS = {
+    "Critical": "#dc3545",
+    "Needs Attention": "#ffc107",
+    "Good": "#28a745",
+}
+
+ANALYSIS_SYSTEM_PROMPT = """You are LankaMedi AI, a clinical decision-support assistant for educational use in Sri Lanka.
+Analyze the medical report text and respond with ONLY valid JSON (no markdown fences, no extra text).
+
+JSON schema:
+{
+  "status": "Critical" | "Needs Attention" | "Good",
+  "critical_issues": <non-negative integer>,
+  "warning_issues": <non-negative integer>,
+  "positive_indicators": <non-negative integer>,
+  "treatment_plan": {
+    "conditions": ["..."],
+    "medications": ["..."],
+    "lifestyle": ["..."],
+    "notes": ["..."]
+  }
+}
+
+Rules:
+- Infer only from evidence in the report. Do NOT invent diagnoses for normal findings (e.g. normal glucose is not diabetes).
+- status Critical only for emergency / life-threatening language or clearly severe findings.
+- medications must be general discussion points for a physician visit; do NOT prescribe exact drug doses as definitive treatment.
+- Keep each list item concise (1-2 sentences). Use empty arrays when nothing applies.
+- Prefer Sri Lanka / South Asia healthcare context when relevant.
+- Always include at least one notes item reminding the user to consult a licensed clinician."""
+
+
+def cloud_ocr(image_bytes):
+    """Extract text from an image via OCR.space. Returns text or raises ValueError."""
+    api_key = OCR_SPACE_API_KEY or "helloworld"
+    image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+    payload = {
+        "base64Image": f"data:image/png;base64,{image_b64}",
+        "apikey": api_key,
+        "language": "eng",
+        "OCREngine": "2",
+    }
+    try:
+        response = requests.post(
+            "https://api.ocr.space/parse/image",
+            data=payload,
+            timeout=45,
+        )
+        response.raise_for_status()
+        result = response.json()
+    except requests.RequestException as exc:
+        raise ValueError(f"OCR request failed: {exc}") from exc
+
+    if result.get("IsErroredOnProcessing"):
+        message = result.get("ErrorMessage") or result.get("ErrorDetails") or "OCR processing failed"
+        if isinstance(message, list):
+            message = "; ".join(str(m) for m in message)
+        raise ValueError(str(message))
+
+    parsed = result.get("ParsedResults") or []
+    if not parsed:
+        raise ValueError("OCR returned no text. Use a clearer image or paste the report as text.")
+
+    text = (parsed[0].get("ParsedText") or "").strip()
+    if not text:
+        raise ValueError("OCR returned empty text. Use a clearer image or paste the report as text.")
+    return text
+
+
+def extract_pdf_text(file_bytes):
+    pdf_reader = PyPDF2.PdfReader(BytesIO(file_bytes))
+    parts = []
+    for page in pdf_reader.pages:
+        page_text = page.extract_text() or ""
+        if page_text.strip():
+            parts.append(page_text)
+    text = "\n".join(parts).strip()
+    if not text:
+        raise ValueError("Could not extract text from PDF. Try another file or paste the text.")
+    return text
+
+
+def _extract_json_object(raw_text):
+    text = (raw_text or "").strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if not match:
+            raise ValueError("Model did not return valid JSON")
+        return json.loads(match.group(0))
+
+
+def _normalize_analysis(data):
+    status = data.get("status", "Needs Attention")
+    if status not in STATUS_COLORS:
+        status = "Needs Attention"
+
+    plan = data.get("treatment_plan") or {}
+    for key in ("conditions", "medications", "lifestyle", "notes"):
+        items = plan.get(key) or []
+        if not isinstance(items, list):
+            items = [str(items)]
+        plan[key] = [str(item).strip() for item in items if str(item).strip()]
+
+    if not plan["notes"]:
+        plan["notes"].append(
+            "Informational AI summary only — confirm all findings and treatment with a licensed clinician."
+        )
+
+    def as_int(value):
+        try:
+            return max(0, int(value))
+        except (TypeError, ValueError):
+            return 0
+
+    return {
+        "status": status,
+        "color": STATUS_COLORS[status],
+        "critical_issues": as_int(data.get("critical_issues")),
+        "warning_issues": as_int(data.get("warning_issues")),
+        "positive_indicators": as_int(data.get("positive_indicators")),
+        "treatment_plan": plan,
+    }
+
+
+class MedicalAnalyzer:
     def analyze_report(self, text):
-        text_lower = text.lower()
-        
-        # Count keyword occurrences
-        critical_count = sum(1 for keyword in self.critical_keywords if keyword in text_lower)
-        warning_count = sum(1 for keyword in self.warning_keywords if keyword in text_lower)
-        positive_count = sum(1 for keyword in self.positive_keywords if keyword in text_lower)
-        
-        # Determine overall status
-        if critical_count > 0:
-            status = "Critical"
-            color = "#dc3545"
-        elif warning_count > positive_count:
-            status = "Needs Attention"
-            color = "#ffc107"
-        else:
-            status = "Good"
-            color = "#28a745"
-        
-        # Generate treatment plan
-        treatment_plan = self._generate_treatment_plan(critical_count, warning_count, positive_count, text_lower)
-        
-        return {
-            'status': status,
-            'color': color,
-            'critical_issues': critical_count,
-            'warning_issues': warning_count,
-            'positive_indicators': positive_count,
-            'treatment_plan': treatment_plan
+        if not NVIDIA_API_KEY:
+            raise ValueError(
+                "NVIDIA_API_KEY is not configured. Add it to your .env file."
+            )
+
+        truncated = text.strip()
+        if len(truncated) > 12000:
+            truncated = truncated[:12000] + "\n\n[Report truncated for analysis length limits]"
+
+        payload = {
+            "model": NVIDIA_MODEL,
+            "temperature": 0.2,
+            "top_p": 0.7,
+            "max_tokens": 1200,
+            "messages": [
+                {"role": "system", "content": ANALYSIS_SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": (
+                        "Analyze this medical report and return JSON only:\n\n"
+                        f"{truncated}"
+                    ),
+                },
+            ],
         }
-    
-    def _generate_treatment_plan(self, critical, warning, positive, text):
-        treatment_plan = {
-            'conditions': [],
-            'medications': [],
-            'lifestyle': [],
-            'notes': []
+        headers = {
+            "Authorization": f"Bearer {NVIDIA_API_KEY}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
         }
-        
-        if critical > 0:
-            treatment_plan['conditions'].append("🚨 Critical Medical Condition: Severe abnormalities detected requiring immediate medical intervention and emergency care protocols.")
-            treatment_plan['medications'].append("💊 URGENT: Immediate physician consultation required for emergency medication protocol")
-            treatment_plan['lifestyle'].append("🚨 Strict bed rest until medical evaluation - avoid strenuous activities")
-            treatment_plan['notes'].append("⚠️ Critical findings require immediate medical attention within 24 hours")
-        
-        if 'cholesterol' in text or 'lipid' in text:
-            treatment_plan['conditions'].append("🫀 Dyslipidemia: Elevated cholesterol levels increasing cardiovascular disease risk. Requires lipid management and lifestyle modifications.")
-            treatment_plan['medications'].append("💊 Statin therapy: Atorvastatin 20mg daily or Rosuvastatin 10mg daily (physician consultation required)")
-            treatment_plan['lifestyle'].append("🥗 Mediterranean diet: <7% saturated fat, 25-35g fiber daily, omega-3 rich fish 2x/week")
-            treatment_plan['notes'].append("📊 Target LDL <100mg/dL (or <70mg/dL if high cardiovascular risk)")
-        
-        if 'diabetes' in text or 'glucose' in text:
-            treatment_plan['conditions'].append("🩺 Diabetes Mellitus: Chronic metabolic disorder characterized by elevated blood glucose levels. Requires comprehensive glucose management.")
-            treatment_plan['medications'].append("💉 Metformin 500mg BID, consider GLP-1 agonists (Semaglutide) if HbA1c >7%")
-            treatment_plan['lifestyle'].append("🍽️ Carbohydrate counting: 45-60g per meal, regular meal timing, avoid simple sugars")
-            treatment_plan['notes'].append("🎯 Target HbA1c <7% for most adults, fasting glucose 80-130mg/dL")
-        
-        if 'blood pressure' in text or 'hypertension' in text:
-            treatment_plan['conditions'].append("🫀 Hypertension: Elevated blood pressure increasing risk of cardiovascular disease, stroke, and kidney damage. Requires antihypertensive therapy.")
-            treatment_plan['medications'].append("💊 ACE inhibitor (Lisinopril 10mg daily) or ARB (Losartan 50mg daily) - physician guided")
-            treatment_plan['lifestyle'].append("🧂 DASH diet: <2300mg sodium daily, increase potassium (3500-5000mg), limit alcohol")
-            treatment_plan['notes'].append("🎯 Target BP <130/80 mmHg, monitor daily at same time")
-        
-        if 'kidney' in text or 'renal' in text:
-            treatment_plan['conditions'].append("🫘 Chronic Kidney Disease: Progressive loss of kidney function affecting waste filtration and electrolyte balance. Requires nephrology management.")
-            treatment_plan['medications'].append("💊 Avoid NSAIDs, adjust medication doses based on eGFR, consider phosphate binders")
-            treatment_plan['lifestyle'].append("💧 Fluid management: 1.5-2L daily unless restricted, low-protein diet (0.8g/kg body weight)")
-            treatment_plan['notes'].append("🫘 Monitor creatinine, eGFR, and proteinuria every 3-6 months")
-        
-        if 'liver' in text or 'hepatic' in text:
-            treatment_plan['conditions'].append("🦠 Hepatic Dysfunction: Impaired liver function affecting metabolism, detoxification, and protein synthesis. Requires hepatology evaluation.")
-            treatment_plan['medications'].append("🚫 Discontinue hepatotoxic drugs (acetaminophen >3g/day, alcohol), consider ursodeoxycholic acid")
-            treatment_plan['lifestyle'].append("🍾 Complete alcohol cessation, low-fat diet, avoid raw shellfish")
-            treatment_plan['notes'].append("🦠 Monitor ALT, AST, bilirubin monthly until normalized")
-        
-        if warning > 0 and critical == 0:
-            treatment_plan['medications'].append("💊 Continue current medications, discuss dose optimization with physician")
-            treatment_plan['lifestyle'].append("📊 Daily symptom monitoring, maintain medication adherence >95%")
-            treatment_plan['notes'].append("📅 Follow-up in 2-4 weeks for treatment response evaluation")
-        
-        if positive > warning:
-            treatment_plan['medications'].append("✅ Maintain current therapeutic regimen - excellent medication response")
-            treatment_plan['lifestyle'].append("🏃 Continue current exercise routine, maintain healthy dietary patterns")
-            treatment_plan['notes'].append("🔄 Annual preventive care: lipid panel, HbA1c, comprehensive metabolic panel")
-        
-        return treatment_plan
+
+        try:
+            response = requests.post(
+                f"{NVIDIA_BASE_URL}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=90,
+            )
+        except requests.RequestException as exc:
+            raise ValueError(f"NVIDIA API request failed: {exc}") from exc
+
+        if response.status_code >= 400:
+            detail = response.text[:400]
+            raise ValueError(f"NVIDIA API error ({response.status_code}): {detail}")
+
+        body = response.json()
+        try:
+            content = body["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise ValueError("Unexpected NVIDIA API response format") from exc
+
+        if not content:
+            # Some NVIDIA models put text in reasoning_content
+            content = body["choices"][0]["message"].get("reasoning_content")
+        if not content:
+            raise ValueError("NVIDIA API returned an empty response")
+
+        parsed = _extract_json_object(content)
+        return _normalize_analysis(parsed)
+
 
 analyzer = MedicalAnalyzer()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/analyze', methods=['POST'])
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/analyze", methods=["POST"])
 def analyze():
     try:
-        # Handle file upload (PDF or Image)
-        if 'report_file' in request.files:
-            file = request.files['report_file']
-            if file.filename == '':
-                return jsonify({'error': 'No file selected'}), 400
-            
+        if "report_file" in request.files:
+            file = request.files["report_file"]
+            if not file or file.filename == "":
+                return jsonify({"error": "No file selected"}), 400
+
             filename = file.filename.lower()
-            
-            # Extract text based on file type
-            if filename.endswith('.pdf'):
-                # PDF processing
-                pdf_reader = PyPDF2.PdfReader(BytesIO(file.read()))
-                report_text = ''
-                for page in pdf_reader.pages:
-                    report_text += page.extract_text() + '\n'
-            
-            elif filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
-                # Cloud OCR processing
-                file_bytes = file.read()
+            file_bytes = file.read()
+
+            if filename.endswith(".pdf"):
+                report_text = extract_pdf_text(file_bytes)
+            elif filename.endswith((".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif", ".webp")):
                 report_text = cloud_ocr(file_bytes)
-                if not report_text:
-                    return jsonify({'error': 'OCR processing failed. Please ensure image contains clear text.'}), 400
-            
             else:
-                return jsonify({'error': 'Unsupported file type. Please upload PDF or image files.'}), 400
-        
-        # Handle text input
+                return jsonify(
+                    {"error": "Unsupported file type. Please upload PDF or image files."}
+                ), 400
         else:
-            data = request.get_json()
-            report_text = data.get('report_text', '')
-        
-        if not report_text.strip():
-            return jsonify({'error': 'Please provide report text or upload a file'}), 400
-        
+            data = request.get_json(silent=True) or {}
+            report_text = data.get("report_text", "")
+
+        if not str(report_text).strip():
+            return jsonify({"error": "Please provide report text or upload a file"}), 400
+
         analysis = analyzer.analyze_report(report_text)
         return jsonify(analysis)
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"error": f"Analysis failed: {exc}"}), 500
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", "5000"))
+    debug = os.getenv("FLASK_DEBUG", "1") == "1"
+    app.run(debug=debug, port=port)
